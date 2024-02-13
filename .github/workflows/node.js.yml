@@ -25,9 +25,22 @@ jobs:
           cache: "npm"
 
       - name: Set env variables in .env
-        run: echo "API_KEY=${{secrets.API_KEY}}" > .env && echo "API_URL=${{secrets.API_URL}}" >> .env && echo "PORT=${{secrets.PORT}}" >> .env
+        run: echo "PORT=${{secrets.PORT}}" >> .env
 
       - name: Run the app
         run: npm i
       - run: npm run build --if-present
-      - run: pm2 restart task-tempo
+
+      # Check if PM2 process with name 'task-tempo' exists
+      - name: Check if PM2 process exists
+        id: pm2_check
+        run: pm2 list | grep -q "task-tempo" || echo "::set-output name=exists::false"
+
+      # Start PM2 process if it doesn't exist
+      - name: Start PM2 process
+        if: steps.pm2_check.outputs.exists == 'false'
+        run: pm2 start task-tempo
+
+      # Restart PM2 process
+      - name: Restart PM2 process
+        run: pm2 restart task-tempo

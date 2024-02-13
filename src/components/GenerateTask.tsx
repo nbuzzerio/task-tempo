@@ -1,18 +1,24 @@
 import { useState } from "react";
-import { Task } from "../App";
+import { Task, TaskSet } from "../App";
+import writeToLocalStorage from "../services/write-localStorage";
 
 interface GenerateTaskProps {
   tasks: Task[];
+  taskSets: TaskSet[];
   setTasks: React.Dispatch<React.SetStateAction<Task[]>>;
+  setTaskSets: React.Dispatch<React.SetStateAction<TaskSet[]>>;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const GenerateTask: React.FC<GenerateTaskProps> = ({
   tasks,
+  taskSets,
   setTasks,
   setIsEditing,
+  setTaskSets,
 }) => {
   const [task, setTask] = useState("");
+  const [taskNotes, setTaskNotes] = useState("");
   const [time, setTime] = useState("");
   const [totalTime, setTotalTime] = useState("");
   const [timeError, setTimeError] = useState(false);
@@ -20,9 +26,7 @@ const GenerateTask: React.FC<GenerateTaskProps> = ({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // const timeRegex = /^(?:[0-1]?[0-9]|2[0-3])?(?::[0-5][0-9]){1,2}$/;
-    // const timeRegex = /^(?:[01]?[0-9]|2[0-3])?(?::[0-5][0-9]){1,2}$/;
-    const timeRegex = /^(?:[0-2]?[0-9]?:)?[0-5][0-9]:[0-5][0-9]$/;
+    const timeRegex = /^(?:[0-2]?[0-9]?:)?(?:[0-5]?[0-9]:)?[0-5][0-9]$/;
 
     if (
       !task ||
@@ -51,6 +55,26 @@ const GenerateTask: React.FC<GenerateTaskProps> = ({
         setTaskAdded(false);
       }, 2000);
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let inputValue = e.target.value;
+
+    // Remove any non-digit characters
+    inputValue = inputValue.replace(/\D/g, "");
+
+    // Add colons ':' if they are missing
+    if (inputValue.length > 2 && inputValue.charAt(2) !== ":") {
+      inputValue = inputValue.slice(0, 2) + ":" + inputValue.slice(2);
+    }
+    if (inputValue.length > 5 && inputValue.charAt(5) !== ":") {
+      inputValue = inputValue.slice(0, 5) + ":" + inputValue.slice(5);
+    }
+
+    // Limit the length to 8 characters (HH:MM:SS)
+    inputValue = inputValue.slice(0, 8);
+
+    setTime(inputValue);
   };
 
   return (
@@ -85,6 +109,22 @@ const GenerateTask: React.FC<GenerateTaskProps> = ({
         </div>
         <div>
           <label
+            htmlFor="taskNotes"
+            className="block text-sm font-medium text-gray-300"
+          >
+            Task Notes
+          </label>
+          <input
+            type="text"
+            id="taskNotes"
+            className="mt-1 p-2 block w-full border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
+            value={taskNotes}
+            maxLength={100}
+            onChange={(e) => setTaskNotes(e.target.value)}
+          />
+        </div>
+        <div>
+          <label
             htmlFor="time"
             className="block text-sm font-medium text-gray-300"
           >
@@ -92,10 +132,10 @@ const GenerateTask: React.FC<GenerateTaskProps> = ({
           </label>
           <input
             type="text"
+            value={time}
             id="time"
             className="mt-1 p-2 block w-full border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
+            onChange={handleInputChange}
             placeholder={"00:00:00"}
           />
         </div>
@@ -124,10 +164,35 @@ const GenerateTask: React.FC<GenerateTaskProps> = ({
           </button>
         </div>
         <div>
+          {/* <button
+            type="submit"
+            className="w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:border-red-700 focus:ring-red-500"
+            onClick={() => {
+              setIsEditing(false);
+              if (taskSets.some((taskSet) => taskSet.name === "name"))
+                setTaskSets([...taskSets, { name: "name", taskSet: tasks }]);
+              writeToLocalStorage([
+                ...taskSets,
+                { name: "name", taskSet: tasks },
+              ]);
+            }}
+          >
+            Finish Editing Task
+          </button> */}
           <button
             type="submit"
             className="w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:border-red-700 focus:ring-red-500"
-            onClick={() => setIsEditing(false)}
+            onClick={() => {
+              setIsEditing(false);
+              const name = prompt("Enter a name:");
+              if (!name) return; // Cancelled or empty name
+              if (taskSets.some((taskSet) => taskSet.name === name)) {
+                alert("Name already exists. Please choose a different name.");
+                return;
+              }
+              setTaskSets([...taskSets, { name, taskSet: tasks }]);
+              writeToLocalStorage([...taskSets, { name, taskSet: tasks }]);
+            }}
           >
             Finish Editing Task
           </button>
