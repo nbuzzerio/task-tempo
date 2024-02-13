@@ -17,26 +17,7 @@ export interface TaskSet {
 
 function App() {
   const [isEditing, setIsEditing] = useState(false);
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      task: "Send 3 starting vills to sheep and 3 to gold (with mine)",
-      time: "00:00",
-      totalTime: "",
-      completed: "",
-    },
-    {
-      task: "new vills build house then rally to food until 9",
-      time: "00:25",
-      totalTime: "",
-      completed: "",
-    },
-    {
-      task: "Rally to woodline",
-      time: "",
-      totalTime: "02:05",
-      completed: "",
-    },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [taskSets, setTaskSets] = useState<TaskSet[]>([]);
   const [trialTask, setTrialTask] = useState(false);
 
@@ -45,7 +26,7 @@ function App() {
     if (storedTasks) setTaskSets(JSON.parse(storedTasks));
 
     return () => {};
-  }, []);
+  }, [trialTask]);
 
   return (
     <div className="min-h-screen bg-[#222]">
@@ -54,10 +35,11 @@ function App() {
           Task Tempo
         </h1>
 
-        {taskSets && (
+        {taskSets && !trialTask && (
           <div className="flex justify-center items-center flex-wrap">
             {taskSets.map((taskSet) => (
               <div
+                key={taskSet.name}
                 className="sm:w-40 sm:h-20 rounded-lg shadow-md m-2 flex justify-center items-center bg-gray-600 p-2"
                 onClick={() => {
                   setTasks(taskSet.taskSet);

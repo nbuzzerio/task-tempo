@@ -7,7 +7,7 @@ interface TrialTaskProps {
 }
 
 const TrialTask: React.FC<TrialTaskProps> = ({ tasks, setTrialTask }) => {
-  const [tasksList, setTasksList] = useState(tasks);
+  const [tasksList, setTasksList] = useState([...tasks]);
   const [task, setTask] = useState<Task | null>(null);
   const [taskComplete, setTaskComplete] = useState(false);
 
