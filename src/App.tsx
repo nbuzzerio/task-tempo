@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import GenerateTask from "./components/GenerateTask";
 import TrialTask from "./components/TrialTask";
+import { readJson } from "./services/read-write-json";
 
 export interface Task {
   task: string;
@@ -22,8 +23,12 @@ function App() {
   const [trialTask, setTrialTask] = useState(false);
 
   useEffect(() => {
-    const storedTasks = localStorage.getItem("tasks");
-    if (storedTasks) setTaskSets(JSON.parse(storedTasks));
+    const fetchTasks = async () => {
+      const storedTasks = await readJson();
+      if (storedTasks) setTaskSets(storedTasks);
+    };
+
+    fetchTasks();
 
     return () => {};
   }, [trialTask]);
@@ -40,7 +45,7 @@ function App() {
             {taskSets.map((taskSet) => (
               <div
                 key={taskSet.name}
-                className="sm:w-40 sm:h-20 rounded-lg shadow-md m-2 flex justify-center items-center bg-gray-600 p-2"
+                className="sm:w-40 sm:h-20 rounded-lg shadow-md m-2 flex justify-center items-center bg-gray-600 p-2 cursor-pointer active:scale-105"
                 onClick={() => {
                   setTasks(taskSet.taskSet);
                 }}

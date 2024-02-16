@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Task, TaskSet } from "../App";
-import writeToLocalStorage from "../services/write-localStorage";
+import { writeToJSON } from "../services/read-write-json";
 
 interface GenerateTaskProps {
   tasks: Task[];
@@ -39,6 +39,7 @@ const GenerateTask: React.FC<GenerateTaskProps> = ({
         ...tasks,
         {
           task,
+          taskNotes,
           time,
           totalTime,
           completed: "",
@@ -139,7 +140,7 @@ const GenerateTask: React.FC<GenerateTaskProps> = ({
             placeholder={"00:00:00"}
           />
         </div>
-        <div>
+        {/* <div>
           <label
             htmlFor="totalTime"
             className="block text-sm font-medium text-gray-300"
@@ -154,7 +155,7 @@ const GenerateTask: React.FC<GenerateTaskProps> = ({
             onChange={(e) => setTotalTime(e.target.value)}
             placeholder={"00:00:00"}
           />
-        </div>
+        </div> */}
         <div>
           <button
             type="submit"
@@ -164,21 +165,6 @@ const GenerateTask: React.FC<GenerateTaskProps> = ({
           </button>
         </div>
         <div>
-          {/* <button
-            type="submit"
-            className="w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:border-red-700 focus:ring-red-500"
-            onClick={() => {
-              setIsEditing(false);
-              if (taskSets.some((taskSet) => taskSet.name === "name"))
-                setTaskSets([...taskSets, { name: "name", taskSet: tasks }]);
-              writeToLocalStorage([
-                ...taskSets,
-                { name: "name", taskSet: tasks },
-              ]);
-            }}
-          >
-            Finish Editing Task
-          </button> */}
           <button
             type="submit"
             className="w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:border-red-700 focus:ring-red-500"
@@ -191,7 +177,7 @@ const GenerateTask: React.FC<GenerateTaskProps> = ({
                 return;
               }
               setTaskSets([...taskSets, { name, taskSet: tasks }]);
-              writeToLocalStorage([...taskSets, { name, taskSet: tasks }]);
+              writeToJSON([...taskSets, { name, taskSet: tasks }]);
             }}
           >
             Finish Editing Task

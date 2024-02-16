@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Task } from "../App";
+import { hhmmssToSeconds, secondsToHhmmss } from "../utils/time-conversion";
 
 interface TrialTaskProps {
   tasks: Task[];
@@ -22,9 +23,18 @@ const TrialTask: React.FC<TrialTaskProps> = ({ tasks, setTrialTask }) => {
   }, [tasksList]);
 
   const expectedTime = tasks.reduce((acc, curr) => {
-    if (curr.time) acc += curr.time;
+    if (curr.time) {
+      const taskTime = hhmmssToSeconds(curr.time);
+      let tasksSetTime = hhmmssToSeconds(acc);
+
+      tasksSetTime += taskTime;
+      console.log("before: ", tasksSetTime);
+      acc = secondsToHhmmss(tasksSetTime);
+      console.log("after: ", acc);
+    }
+
     return acc;
-  }, "0");
+  }, "00:00");
   const actualTime = tasks.reduce((acc, curr) => {
     if (curr.completed) acc += curr.completed;
     return acc;
@@ -46,12 +56,16 @@ const TrialTask: React.FC<TrialTaskProps> = ({ tasks, setTrialTask }) => {
                     Task
                   </div>
                   <p className="mt-2 text-gray-500">{task?.task}</p>
+                  <div className="uppercase tracking-wide text-sm text-indigo-500 font-semibold mt-4">
+                    Task Notes
+                  </div>
+                  <p className="mt-2 text-gray-500">{task?.taskNotes}</p>
                 </div>
               </div>
             </div>
             <button
               type="submit"
-              className="w-full py-2 px-4 border border-transparent text-sm font-medium rounded-md text-gray-100 bg-green-600 hover:bg-green-700 focus:outline-none focus:border-green-700 focus:ring-green-500 my-5 max-w-md md:max-w-2xl"
+              className="w-full py-12 px-4 border border-transparent text-sm font-medium rounded-md text-gray-100 bg-green-600 hover:bg-green-700 focus:outline-none focus:border-green-700 focus:ring-green-500 my-5 max-w-md md:max-w-2xl"
               onClick={() => {
                 tasksList.shift();
                 setTasksList([...tasksList]);
@@ -73,7 +87,7 @@ const TrialTask: React.FC<TrialTaskProps> = ({ tasks, setTrialTask }) => {
                   <div className="uppercase tracking-wide text-sm text-indigo-500 font-semibold mt-4">
                     Actual Time: {actualTime}
                   </div>
-                  <p className="mt-2 text-gray-500">{task?.task}</p>
+                  <p className="mt-2 text-gray-500">TASKSET COMPLETE</p>
                 </div>
               </div>
             </div>

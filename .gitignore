@@ -27,3 +27,6 @@ dist-ssr
 .env
 
 notes.txt
+
+#data
+*tasks.json
